@@ -452,5 +452,5 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "weaponStats")
 	float chargeReadyTime;
-	
+
 };
