@@ -8,6 +8,24 @@
 #include "Components/BoxComponent.h"
 #include "Enemy.generated.h"
 
+UENUM(BlueprintType)
+enum class EAttackType : uint8
+{
+	EAT_range 	UMETA(DisplayName = "shoting attack"),
+	EAT_allert 	UMETA(DisplayName = "allerting allies"),
+	EAT_charge	UMETA(DisplayName = "charge attack"),
+	EAT_clean	UMETA(DisplayName = "clean")
+};
+
+UENUM(BlueprintType)
+enum class EAggroState : uint8
+{
+	EAS_neutral 	UMETA(DisplayName = "neutral aggro state"),
+	EAS_allert 	UMETA(DisplayName = "allerted aggro state"),
+	EAS_attack	UMETA(DisplayName = "attacking aggro state"),
+	EAS_clean	UMETA(DisplayName = "clean")
+};
+
 UCLASS()
 class UNHOLY_API AEnemy : public AActor
 {
@@ -24,6 +42,12 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EAttackType attackType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EAggroState	aggroState;
 
 	UFUNCTION(BlueprintCallable)
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -42,7 +66,11 @@ public:
 
 	// overlap component for dmg
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UBoxComponent* TriggerVolume;
+	class UBoxComponent* bodyTriggerVolume;
+
+	// overlap component for dmg
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UBoxComponent* headTriggerVolume;
 
 	// overlap component for aggro
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -86,6 +114,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bBeenHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bBeenCrit;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector playerLocation;

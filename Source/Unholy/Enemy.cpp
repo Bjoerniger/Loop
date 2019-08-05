@@ -11,10 +11,17 @@ AEnemy::AEnemy()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	TriggerVolume = CreateDefaultSubobject<UBoxComponent>(FName("TriggerVolume"));
-	if (!ensure(TriggerVolume != nullptr)) return;
-	RootComponent = TriggerVolume;
-	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
+	bodyTriggerVolume = CreateDefaultSubobject<UBoxComponent>(FName("BodyTriggerVolume"));
+	//if (!ensure(bodyTriggerVolume != nullptr)) return;
+	RootComponent = bodyTriggerVolume;
+	//bodyTriggerVolume->SetupAttachment(RootComponent);
+	bodyTriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
+
+	headTriggerVolume = CreateDefaultSubobject<UBoxComponent>(FName("HeadTriggerVolume"));
+	//if (!ensure(headTriggerVolume != nullptr)) return;
+	headTriggerVolume->SetupAttachment(RootComponent);
+	headTriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
+
 
 	// set in BP till you know how to collision
 	//aggroSphere = CreateDefaultSubobject<USphereComponent>(FName("aggroSphere"));
@@ -60,11 +67,13 @@ void AEnemy::Tick(float DeltaTime)
 			aggroTimerValue += DeltaTime;
 		}
 		else {
+			aggroState = EAggroState::EAS_attack;
 			Attack();
 		}
 	}
 	else {
 		aggroTimerValue = 0.f;
+		aggroState = EAggroState::EAS_neutral;
 	}
 
 	if (healthValue <= 0) {
@@ -76,19 +85,24 @@ void AEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 
 	if (!bIsAlive) return;
 	UPrimitiveComponent* overlappedComp = SweepResult.GetComponent();
-
+	FString hitComp = overlappedComp->GetName();
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, ">> " + hitComp);
 	// if player gets into range (comming from BP)
-	if (overlappedComp->GetFName() == "aggroRange") {
+	if (hitComp == "aggroRange") {
 		FString returno = overlappedComp->GetName();
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "icu!");
-
+		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "icu!");
+		aggroState = EAggroState::EAS_allert;
 		bCanSeePlayer = true;
 	}
-	else if (overlappedComp->GetFName() == "aggroSphere") {
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "ach jetzt doch?!");
+	// if headshot
+	if (hitComp == "headTriggerVolume") {
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "critical hit!");
+		bBeenCrit = true;
+		theHitComp = OtherComp;
+		theHitMan = OtherActor;
 	}
-	// if hit by player bullet (comming from cpp)
-	else if (overlappedComp == TriggerVolume) {
+	// if bodyhit by player bullet (comming from cpp)
+	if (hitComp == "bodyTriggerVolume") {
 		bBeenHit = true;
 		theHitComp = OtherComp;
 		theHitMan = OtherActor;

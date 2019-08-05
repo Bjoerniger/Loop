@@ -453,4 +453,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "weaponStats")
 	float chargeReadyTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "weaponStats")
+	float critMultiplier;
 };

@@ -175,6 +175,7 @@ AUnholyCharacter::AUnholyCharacter() {
 	bulletPenetration = 1;
 	//chargeSpeed == chargeActiveTimerMax;
 	chargeReadyTime = 2.f;							// time a special bullet charge stais rdy to use
+	critMultiplier = 2.f;
 
 }
 
