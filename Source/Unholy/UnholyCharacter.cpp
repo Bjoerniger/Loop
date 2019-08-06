@@ -101,6 +101,7 @@ AUnholyCharacter::AUnholyCharacter() {
 
 	bShowOnCharUI = false;
 
+	bIsAlive = true;
 	healthMax = 10.f;
 	healthValue = healthMax;
 
@@ -110,8 +111,9 @@ AUnholyCharacter::AUnholyCharacter() {
 	skills_CanDash = false;
 
 	jumpType = EJumpType::EJT_clean;
-	jumpPowerValue = 1.f;
-	jumpPowerMax = 1.25f;
+	jumpPowerBase = 1.f;
+	jumpPowerValue = jumpPowerBase;
+	jumpPowerMax = 1.5f;
 
 	bDoStomp = false;
 	bIsStomping = false;
@@ -202,8 +204,8 @@ void AUnholyCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 void AUnholyCharacter::Tick(float deltaTime) {
 	Super::Tick(deltaTime);
-	
-	if (bAllowMovement) {
+
+	if (bAllowMovement && bIsAlive) {
 		GetMousePos();
 		GetAim();
 		IncreaseSkillsByLevel();
@@ -401,6 +403,8 @@ void AUnholyCharacter::GetMousePos() {
 // Set Character Rotation according to Mouse Position
 void AUnholyCharacter::SetCharacterRotationToMouse() {
 	if (!bAllowMovement) return;
+	if (!bIsAlive) return;
+
 	else {
 		// Check if Mouse Left or Right of Character when on ground
 		FRotator rot = GetActorRotation();
@@ -421,7 +425,7 @@ void AUnholyCharacter::SetCharacterRotationToMouse() {
 
 // sets pitch of upper body / aim
 void AUnholyCharacter::GetAim() {
-	
+
 	// check if aim is above, below or mid
 	float ang;
 
@@ -503,7 +507,9 @@ void AUnholyCharacter::Dash() {
 }
 
 void AUnholyCharacter::SpaceDown() {
+
 	if (!bAllowMovement) return;
+
 	space = true;
 
 	// if walljump
@@ -520,7 +526,10 @@ void AUnholyCharacter::SpaceDown() {
 }
 
 void AUnholyCharacter::SpaceUp() {
+
 	if (!bAllowMovement) return;
+	if (!bIsAlive) return;
+
 	else {
 		space = false;
 
@@ -538,7 +547,7 @@ void AUnholyCharacter::SpaceUp() {
 					face = "L";
 					LaunchCharacter(FVector(0, doubleJumpLaunchPowerY, doubleJumpLaunchPowerZ * jumpPowerValue), false, true);
 					jumpType = EJumpType::EJT_wall;
-					jumpPowerValue = 1.f;
+					jumpPowerValue = jumpPowerBase;
 				}
 			}
 			// # drop down from wallhug if down pressed
@@ -564,7 +573,7 @@ void AUnholyCharacter::SpaceUp() {
 				LaunchCharacter(FVector(0, 0, doubleJumpLaunchPowerZ * jumpPowerValue), false, true);
 				bIsJumping = true;
 				jumpType = EJumpType::EJT_single;
-				jumpPowerValue = 1.f;
+				jumpPowerValue = jumpPowerBase;
 			}
 			// # double jump
 			else {
@@ -626,11 +635,12 @@ void AUnholyCharacter::MoveRight(float Value) {
 	if (!bAllowMovement) return;
 	if (bIsAtWallJump) return;
 	if (bIsCharging) return;
+	if (!bIsAlive) return;
 
-	else {
-		inputValueX = Value;
-		AddMovementInput(FVector(0.f, -1.f, 0.f), inputValueX);
-	}
+
+	inputValueX = Value;
+	AddMovementInput(FVector(0.f, -1.f, 0.f), inputValueX);
+
 }
 
 float AUnholyCharacter::GetSpeed(int axis) {
@@ -719,7 +729,10 @@ void AUnholyCharacter::DealDamage(float dmg) {
 		}
 		else {
 			healthValue = 0.f;
-			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, "DIE!DIE!DIE!");
+			if (bIsAlive) {
+				bIsAlive = false;
+				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, "DIE!DIE!DIE!");
+			}
 		}
 	}
 

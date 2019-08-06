@@ -12,16 +12,28 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bodyTriggerVolume = CreateDefaultSubobject<UBoxComponent>(FName("BodyTriggerVolume"));
-	//if (!ensure(bodyTriggerVolume != nullptr)) return;
+	if (!ensure(bodyTriggerVolume != nullptr)) return;
 	RootComponent = bodyTriggerVolume;
 	//bodyTriggerVolume->SetupAttachment(RootComponent);
 	bodyTriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
 
-	headTriggerVolume = CreateDefaultSubobject<UBoxComponent>(FName("HeadTriggerVolume"));
-	//if (!ensure(headTriggerVolume != nullptr)) return;
-	headTriggerVolume->SetupAttachment(RootComponent);
-	headTriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
+	model_static = CreateDefaultSubobject<UStaticMeshComponent>(FName("model_static"));
+	model_static->SetupAttachment(RootComponent);
+	model_static->bEditableWhenInherited = true;
 
+	model_weapon = CreateDefaultSubobject<UStaticMeshComponent>(FName("model_weapon"));
+	model_weapon->SetupAttachment(RootComponent);
+	model_weapon->bEditableWhenInherited = true;
+
+	headTriggerVolume = CreateDefaultSubobject<UBoxComponent>(FName("HeadTriggerVolume"));
+	if (!ensure(headTriggerVolume != nullptr)) return;
+	headTriggerVolume->SetupAttachment(model_weapon);
+	headTriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
+	headTriggerVolume->bEditableWhenInherited = true;
+
+	model_destruct = CreateDefaultSubobject<UDestructibleComponent>(FName("model_destruct"));
+	model_destruct->SetupAttachment(RootComponent);
+	model_destruct->bEditableWhenInherited = true;
 
 	// set in BP till you know how to collision
 	//aggroSphere = CreateDefaultSubobject<USphereComponent>(FName("aggroSphere"));

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
+#include "DestructibleComponent.h"
 #include "Enemy.generated.h"
 
 UENUM(BlueprintType)
@@ -132,4 +133,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float shotFrequencyMax;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* model_static;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* model_weapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UDestructibleComponent* model_destruct;
 };

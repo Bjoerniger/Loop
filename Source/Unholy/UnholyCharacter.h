@@ -263,11 +263,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float doubleJumpLaunchPowerZ;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Jump")
 	float jumpPowerValue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
 	float jumpPowerMax;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
+	float jumpPowerBase;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vars")
+	bool bIsAlive;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vars")
 	float healthMax;
