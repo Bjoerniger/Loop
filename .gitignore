@@ -10,3 +10,5 @@ Binaries/Win64/UnholyEditor-Win64-DebugGame.target
 Build/
 Saved/
 Intermediate/
+.vs/Loop/v16/.suo
+.vs/Unholy/v15/.suo
