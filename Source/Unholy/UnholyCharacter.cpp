@@ -10,6 +10,12 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "DrawDebugHelpers.h"
+#include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
+#include "Runtime/Engine/Classes/Components/ChildActorComponent.h"
+
+#include "Enemy.h"
+
 
 AUnholyCharacter::AUnholyCharacter() {
 	// Set size for collision capsule
@@ -25,7 +31,7 @@ AUnholyCharacter::AUnholyCharacter() {
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->bAbsoluteRotation = true; // Rotation of the character should not affect rotation of boom
 	CameraBoom->bDoCollisionTest = false;
-	CameraBoom->TargetArmLength = 800.f;
+	CameraBoom->TargetArmLength = 1000.f;
 	CameraBoom->SocketOffset = FVector(0.f,0.f,75.f);
 	CameraBoom->RelativeRotation = FRotator(-10.f,180.f,0.f);
 
@@ -37,6 +43,11 @@ AUnholyCharacter::AUnholyCharacter() {
 
 	gScale = 2.f;
 
+	//muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
+	//muzzleLocation->SetupAttachment(CameraBoom);
+	//muzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
+	//muzzleLocation->bEditableWhenInherited = true;
+
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = false; // don't face in the direction we are moving..
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 1.0f, 0.0f); // ...at this rotation rate
@@ -44,10 +55,22 @@ AUnholyCharacter::AUnholyCharacter() {
 	GetCharacterMovement()->AirControl = 0.2f;
 	GetCharacterMovement()->JumpZVelocity = 1000.f;
 	GetCharacterMovement()->GroundFriction = 3.f;
-	GetCharacterMovement()->MaxWalkSpeed = 550.f;
+	GetCharacterMovement()->MaxWalkSpeed = 750.f;
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
 	GetCharacterMovement()->MaxAcceleration = 6000.f;					// high value to hide acceleration
 	GetCharacterMovement()->BrakingDecelerationWalking = 6000.f;		// high value to hide decelaration
+
+	characterCenter = CreateDefaultSubobject<USceneComponent>(TEXT("CharacterCenter"));
+	characterCenter->SetupAttachment(CameraBoom);
+	characterCenter->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
+	characterCenter->bEditableWhenInherited = true;
+
+	characterAimPoint = CreateDefaultSubobject<USceneComponent>(TEXT("characterAimPoint"));
+	characterAimPoint->SetupAttachment(CameraBoom);
+	characterCenter->SetRelativeLocation(FVector(666.f, 1.f,-75.f));
+	characterAimPoint->bEditableWhenInherited = true;
+
+	knockBackSphere = Cast<UChildActorComponent>(GetDefaultSubobjectByName(TEXT("BP_knockBackSphere")));
 
 	// varrying character vars
 	maxMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
@@ -81,20 +104,20 @@ AUnholyCharacter::AUnholyCharacter() {
 	ActivateObjectName = "";
 
 	dashTimerActive = 0.f;
-	dashTimerMax = 2.f;						// time between double move to dash
+	dashTimerMax = 2.f;								// time between double move to dash
 
-	dashCDMax = 3.f;						// time between 2 dashes
+	dashCDMax = 3.f;								// time between 2 dashes
 	dashCDActive = dashCDMax;
 	dashSpeedMultiplicator = 200.f;
 	canDash = true;
 
 	isDashing = false;
-	dashingTimeMax = .35f;					// time a dash takes
+	dashingTimeMax = .35f;							// time a dash takes
 	dashingTimeActive = 0.f;
 	launchSpeed = 3500.f;
 
-	doubleJumpLaunchPowerY = 700.f;			// length
-	doubleJumpLaunchPowerZ = 800.f;			// height
+	doubleJumpLaunchPowerY = 600.f;					// length
+	doubleJumpLaunchPowerZ = 700.f;					// height
 
 	bIsAtWallJump = false;
 	bCanWallJump = false;
@@ -102,8 +125,10 @@ AUnholyCharacter::AUnholyCharacter() {
 	bShowOnCharUI = false;
 
 	bIsAlive = true;
+	bIsDying = false;
 	healthMax = 10.f;
 	healthValue = healthMax;
+	healthDelayed = 1;
 
 	bDownPressed = false;
 
@@ -114,13 +139,14 @@ AUnholyCharacter::AUnholyCharacter() {
 	jumpPowerBase = 1.f;
 	jumpPowerValue = jumpPowerBase;
 	jumpPowerMax = 1.5f;
+	jumpPowerValueTimeMultiplicator = .75f;
 
 	bDoStomp = false;
 	bIsStomping = false;
 
 	stompTimerValue = 5.f;
-	stompTimerMax = 5.f;					// max value for dmg increase by height @stomp
-	stompSpeed = 2.5f;						// gravity multiplyer during stomp
+	stompTimerMax = 5.f;							// max value for dmg increase by height @stomp
+	stompSpeed = 2.5f;								// gravity multiplyer during stomp
 	stompRdy = true;
 	stompCoolDownMax = 5.f;
 	stompCoolDownValue = 0.f;
@@ -131,12 +157,12 @@ AUnholyCharacter::AUnholyCharacter() {
 	shieldChargesValue = shieldChargesMax;
 	shieldRechargeTimerMax = 3.f;
 	shieldRechargeTimerValue = .0f;
-	timeSinceLastShieldHitMax = 5.f;		// time it takes till shields start recharging after hit
-	timeSinceLastShieldHitValue = .0f;		// time since shield last blocked a hit
+	timeSinceLastShieldHitMax = 5.f;				// time it takes till shields start recharging after hit
+	timeSinceLastShieldHitValue = .0f;				// time since shield last blocked a hit
 
-	chargeFireTimerMax = 5.f;				// time between charge shots
+	chargeFireTimerMax = 5.f;						// time between charge shots
 	chargeFireTimerValue = 0.f;
-	chargeActiveTimerMax = 1.0f;			// time it takes to charge the shot
+	chargeActiveTimerMax = 1.0f;					// time it takes to charge the shot
 	chargeActiveTimerValue = 0.f;
 	bCanChargeFire = true;
 
@@ -170,6 +196,8 @@ AUnholyCharacter::AUnholyCharacter() {
 	skillValue_gadgetCoolDown = 1.f;
 	skillValue_GadgetCapacity = 1.f;
 
+	baseKickPower = 3000.f;							// kickrange (reduced over distance)
+
 	// weapon stats
 	bulletDamage = 3.f;
 	bulletRange = .5f;
@@ -179,6 +207,14 @@ AUnholyCharacter::AUnholyCharacter() {
 	chargeReadyTime = 2.f;							// time a special bullet charge stais rdy to use
 	critMultiplier = 2.f;
 
+	skillOneType = ESkillOneType::ES1_knockback;
+	skillTwoType = ESkillTwoType::ES2_none;
+
+	bShowPopUpInfos = true;
+	bShowPauseMenu = false;
+	bShowDebugWindow = false;
+
+	bGameIsLoaded = false;
 }
 
 // Input
@@ -188,16 +224,22 @@ void AUnholyCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 	else {
 		PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AUnholyCharacter::SpaceDown);
-		//PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 		PlayerInputComponent->BindAction("Jump", IE_Released, this, &AUnholyCharacter::SpaceUp);
 		PlayerInputComponent->BindAxis("MoveRight", this, &AUnholyCharacter::MoveRight);
-		PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AUnholyCharacter::Dash);
+		PlayerInputComponent->BindAction("LShift", IE_Pressed, this, &AUnholyCharacter::Dash);
 		PlayerInputComponent->BindAction("MouseLeft", IE_Pressed, this, &AUnholyCharacter::FireWeapons);
 		PlayerInputComponent->BindAction("MouseRight", IE_Pressed, this, &AUnholyCharacter::FireCharged);
 		PlayerInputComponent->BindAction("MouseRight", IE_Released, this, &AUnholyCharacter::FireChargeActivated);
 		PlayerInputComponent->BindAction("Use", IE_Pressed, this, &AUnholyCharacter::Use);
 		PlayerInputComponent->BindAction("Down", IE_Pressed, this, &AUnholyCharacter::DownPressed);
 		PlayerInputComponent->BindAction("Down", IE_Released, this, &AUnholyCharacter::DownReleased);
+		
+		//PlayerInputComponent->BindAction("E", IE_Pressed, this, &AUnholyCharacter::SpaceDown);
+		PlayerInputComponent->BindAction("E", IE_Released, this, &AUnholyCharacter::SkillOne);
+		//PlayerInputComponent->BindAction("Q", IE_Pressed, this, &AUnholyCharacter::SpaceDown);
+		PlayerInputComponent->BindAction("Q", IE_Released, this, &AUnholyCharacter::SkillTwo);
+		//PlayerInputComponent->BindAction("C", IE_Pressed, this, &AUnholyCharacter::SpaceDown);
+		PlayerInputComponent->BindAction("C", IE_Released, this, &AUnholyCharacter::SkillTwo);
 	}
 	
 }
@@ -205,15 +247,22 @@ void AUnholyCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 void AUnholyCharacter::Tick(float deltaTime) {
 	Super::Tick(deltaTime);
 
+	if (healthDelayed <= 0) {
+		bIsAlive = false;
+	}
+	if (healthValue <= 0) {
+		bIsDying = true;
+	}
+
 	if (bAllowMovement && bIsAlive) {
 		GetMousePos();
 		GetAim();
 		IncreaseSkillsByLevel();
 
 		// set jump power
-		if (space) {
+		if (space && (bIsOnGround || bIsAtWallJump)) {
 			if (jumpPowerValue < jumpPowerMax) {
-				jumpPowerValue += deltaTime;
+				jumpPowerValue += deltaTime * jumpPowerValueTimeMultiplicator;
 			}
 			else {
 				jumpPowerValue = jumpPowerMax;
@@ -384,6 +433,23 @@ void AUnholyCharacter::Tick(float deltaTime) {
 				chargeActiveTimerValue += deltaTime;
 			}
 		}
+
+		// kick back actors hit by knockbacksphere
+		if (knockBackHitActors.Num() > 0) {
+			for (int i = 0; i < knockBackHitActors.Num(); i++) {			
+				// do knockback 
+				AEnemy* kickedEnemy = Cast<AEnemy>(knockBackHitActors[i]);
+				if (kickedEnemy != NULL) {
+					if (kickedEnemy->bBeenKicked == false) {
+						GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, knockBackHitActors[i]->GetName());
+						kickedEnemy->bBeenKicked = true;
+						// remove actor from array
+						knockBackHitActors.RemoveAt(i, 1, true);
+					}
+				}
+				
+			}
+		}
 	}
 }
 
@@ -441,8 +507,8 @@ void AUnholyCharacter::GetAim() {
 	if (pitch < maxPitchValue) pitch = maxPitchValue - pitch;						// values recalculated to 90 (up) and -90 (down)
 	else if (pitch >= maxPitchValue) pitch = -(pitch - maxPitchValue);
 	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::SanitizeFloat(pitch));
-	}
-	
+}
+
 void AUnholyCharacter::Dash() {
 	if (!skills_CanDash) return;
 
@@ -675,7 +741,30 @@ float AUnholyCharacter::GetSpeed(int axis) {
 
 void AUnholyCharacter::FireWeapons() {
 	// no auto fire, bugger off noob!
-	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, "PEW!");
+	if (GetWorld()->GetMapName() == "UEDPIE_0_StartScreen" || GetWorld()->GetMapName() == "StartScreen") {
+		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, GetWorld()->GetMapName());
+	}
+	else {
+		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, "::" + GetWorld()->GetMapName());
+		FCollisionQueryParams CollisionParams;
+		FVector Start = aimPointRef->GetComponentLocation();
+		FVector End = (aimPointRef->GetForwardVector() * 2000.f) + Start;
+		CollisionParams.bTraceComplex = true;
+
+		//Re-initialize hit info
+		FHitResult HitDetails = FHitResult(ForceInit);
+		if (GetWorld()->LineTraceSingleByChannel(HitDetails, Start, End, ECC_PhysicsBody, CollisionParams)) {
+			if (bShowDebugWindow) {
+				DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.f, ECC_WorldStatic, 1.f);
+			}
+			//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, HitDetails.GetActor()->GetName());
+			hitActors.Empty();
+			hitActors.AddUnique(HitDetails.GetActor());
+		}
+		else {
+
+		}
+	}
 }
 
 void AUnholyCharacter::FireCharged() {
@@ -725,13 +814,12 @@ void AUnholyCharacter::DealDamage(float dmg) {
 		if (healthValue > dmg) {
 			healthValue -= dmg;
 			bPlayHitSound = true;
-			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::SanitizeFloat(dmg) + " dmg taken");
+			//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::SanitizeFloat(dmg) + " dmg taken");
 		}
 		else {
 			healthValue = 0.f;
 			if (bIsAlive) {
-				bIsAlive = false;
-				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, "DIE!DIE!DIE!");
+				
 			}
 		}
 	}
@@ -749,4 +837,55 @@ void AUnholyCharacter::IncreaseSkillsByLevel() {
 	// skillLevel_gadgetCoolDown * skillValue_gadgetCoolDown
 	// skillLevel_GadgetCapacity * skillValue_GadgetCapacity;
 
+}
+
+void AUnholyCharacter::SkillOne() {
+	switch(skillOneType)
+	{
+		case ESkillOneType::ES1_none :
+			// none
+			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "tho have no skills!");
+			break;
+		case ESkillOneType::ES1_knockback :
+			// knockback
+			SkillKnockBack();
+			break;
+	}
+}
+
+void AUnholyCharacter::SkillTwo() {
+	switch (skillTwoType)
+	{
+		case ESkillTwoType::ES2_none :
+			// none
+			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "tho have no skills!");
+			break;
+	}
+}
+
+void AUnholyCharacter::SkillThree() {
+	switch (skillThreeType)
+	{
+	case ESkillThreeType::ES3_none:
+		// none
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "tho have no skills!");
+		break;
+	}
+}
+
+FVector AUnholyCharacter::GetCharacterCenter() {
+	return characterAimPoint->GetComponentLocation();
+}
+
+
+void AUnholyCharacter::SkillKnockBack() {
+	if (bKnockBackUsed) return;
+	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "knockback used!");
+	// #1 trigger knockback range sphere (+)
+	bKnockBackUsed = true;					// reset in BP
+	//knockBackSphere->SetVisibility(true);
+	// #2 add all enemies in contact (+)
+	// done in BP, knockBackhitActors filled
+	// #3 knockback enemies on list
+	// done in enemy tick when kickbacked
 }

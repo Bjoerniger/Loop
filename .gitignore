@@ -1,0 +1,12 @@
+
+*.dll
+*.pdb
+.vs/Loop/v15/.suo
+*.db
+*.ipch
+Binaries/Win64/UE4Editor-Win64-DebugGame.modules
+Binaries/Win64/UnholyEditor-Win64-DebugGame.target
+*.log
+Build/
+Saved/
+Intermediate/

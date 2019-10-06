@@ -9,7 +9,8 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine"
+				"Engine",
+				"AIModule"
 			]
 		}
 	],
@@ -20,8 +21,6 @@
 		}
 	],
 	"TargetPlatforms": [
-		"AllDesktop",
-		"HTML5",
 		"WindowsNoEditor"
 	]
 }

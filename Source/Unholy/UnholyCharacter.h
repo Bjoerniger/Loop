@@ -7,13 +7,56 @@
 #include "UnholyCharacter.generated.h"
 
 
-UENUM(BlueprintType)		//"BlueprintType" is essential to include
+UENUM(BlueprintType)		
 enum class EJumpType : uint8
 {
 	EJT_single 	UMETA(DisplayName = "jump"),
 	EJT_double 	UMETA(DisplayName = "doubleJump"),
 	EJT_wall	UMETA(DisplayName = "wallJump"),
 	EJT_clean	UMETA(DisplayName = "clean")
+};
+
+UENUM(BlueprintType)		// offense skill (q)
+enum class ESkillOneType : uint8
+{
+	ES1_none		UMETA(DisplayName = "none"),
+	ES1_knockback 	UMETA(DisplayName = "Knockback"),
+	ES2_nade		UMETA(DisplayName = "grenade"),
+	ES2_freeze		UMETA(DisplayName = "freeze enemies"),
+	ES2_bang		UMETA(DisplayName = "flash bang"),
+	ES2_wave		UMETA(DisplayName = "wave attack"),
+	ES2_rockets		UMETA(DisplayName = "lock-on rockets"),
+	ES2_mine		UMETA(DisplayName = "mines")
+	
+};
+
+UENUM(BlueprintType)		// defense skill	(e)
+enum class ESkillTwoType : uint8
+{
+	ES2_none		UMETA(DisplayName = "none"),
+	ES2_deflect		UMETA(DisplayName= "deflect damage"),
+	ES2_absorb		UMETA(DisplayName = "absorb bomb"),
+	ES2_invu		UMETA(DisplayName = "invulnarability shield")
+};
+
+UENUM(BlueprintType)		// support skill / gadget (c)
+enum class ESkillThreeType : uint8
+{
+	ES3_none		UMETA(DisplayName = "none"),
+	ES3_teleport	UMETA(DisplayName = "teleport"),
+	ES3_gScale		UMETA(DisplayName = "gravity scale"),
+	ES3_speed		UMETA(DisplayName = "run speed")
+};
+
+UENUM(BlueprintType)		// special shot (trigger, right click)
+enum class ESpecialShotType : uint8
+{
+	ESS_none		UMETA(DisplayName = "none"),
+	ESS_laser		UMETA(DisplayName = "laser"),
+	ESS_explode		UMETA(DisplayName = "explode shot"),
+	ESS_chain		UMETA(DisplayName = "chain shot"),
+	ESS_auto		UMETA(DisplayName = "auto fire"),
+	ESS_heavy		UMETA(DisplayName = "heavy shot")
 };
 
 UCLASS(config=Game)
@@ -64,6 +107,36 @@ protected:
 	UFUNCTION()
 	void FireChargeActivated();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USceneComponent* characterCenter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USceneComponent* characterAimPoint;
+
+	// e skills
+	UFUNCTION(BlueprintCallable)
+	void SkillOne();
+
+	UFUNCTION(BlueprintCallable)
+	void SkillKnockBack();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skils")
+	UChildActorComponent* knockBackSphere;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skils")
+	bool bKnockBackUsed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skils")
+	TArray<AActor*> knockBackHitActors;
+
+	// q skills
+	UFUNCTION(BlueprintCallable)
+	void SkillTwo();
+
+	// c skills
+	UFUNCTION(BlueprintCallable)
+	void SkillThree();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float chargeFireTimerMax;
 
@@ -84,6 +157,18 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	bool bIsCharging;
+	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	//USceneComponent* muzzleLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	bool bSpecialShotReady;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	ESpecialShotType specialShotType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMeshComponent* characterMesh;
 
 	/** Called for side to side input */
 	void MoveRight(float Val);
@@ -107,7 +192,7 @@ protected:
 public:
 	AUnholyCharacter();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Enum)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
 	EJumpType jumpType;
 
 	/** Returns SideViewCameraComponent subobject **/
@@ -115,9 +200,21 @@ public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
+	UFUNCTION(BlueprintCallable)
+	FVector GetCharacterCenter();
+
 	// returns movement speed on axis 1:x, 2;y, 3:z
 	UFUNCTION(BlueprintCallable, Category = Movement)
 	float GetSpeed(int axis);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	bool bShowDebugWindow;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	bool bShowPopUpInfos;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	bool bShowPauseMenu;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool bAllowMovement;
@@ -266,6 +363,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Jump")
 	float jumpPowerValue;
 
+	// multiplies time needed to reach max power
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Jump")
+	float jumpPowerValueTimeMultiplicator;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
 	float jumpPowerMax;
 
@@ -276,10 +377,16 @@ public:
 	bool bIsAlive;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vars")
+	bool bIsDying;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vars")
 	float healthMax;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
 	float healthValue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
+	float healthDelayed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "stomp")
 	bool bDoStomp;
@@ -356,6 +463,18 @@ public:
 	bool skills_CanChargeFire;
 
 	// stats
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skills")
+	ESkillOneType skillOneType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skills")
+	ESkillTwoType skillTwoType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skills")
+	ESkillThreeType skillThreeType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skills")
+		float baseKickPower;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "skills")
 	int skillLevel_health;
@@ -461,4 +580,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "weaponStats")
 	float critMultiplier;
+
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bGameIsLoaded;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
+	UArrowComponent* aimPointRef;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
+	TArray<AActor*> hitActors;
 };
