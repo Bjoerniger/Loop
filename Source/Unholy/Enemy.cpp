@@ -494,11 +494,11 @@ void AEnemy::Tick(float DeltaTime) {
 			if (nonAggroState == ENonAggroState::ENA_combat) {
 				if (bDoesPatrol) {
 					nonAggroState = ENonAggroState::ENA_patrol;
-					GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "pat");
+					//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "pat");
 				}
 				else {
 					nonAggroState = ENonAggroState::ENA_idle;
-					GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "idle");
+					//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "idle");
 				}
 			}
 			// reset aim to fw
