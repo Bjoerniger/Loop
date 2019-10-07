@@ -207,7 +207,7 @@ AUnholyCharacter::AUnholyCharacter() {
 	chargeReadyTime = 2.f;							// time a special bullet charge stais rdy to use
 	critMultiplier = 2.f;
 
-	skillOneType = ESkillOneType::ES1_knockback;
+	skillOneType = ESkillOneType::ES1_rockets;
 	skillTwoType = ESkillTwoType::ES2_none;
 
 	bShowPopUpInfos = true;
@@ -215,6 +215,9 @@ AUnholyCharacter::AUnholyCharacter() {
 	bShowDebugWindow = false;
 
 	bGameIsLoaded = false;
+
+	rocketsCoolDownMax = 3.f;
+	rocketsCoolDownValue = rocketsCoolDownMax;
 }
 
 // Input
@@ -252,6 +255,12 @@ void AUnholyCharacter::Tick(float deltaTime) {
 	}
 	if (healthValue <= 0) {
 		bIsDying = true;
+	}
+
+	// skill cds
+
+	if (rocketsCoolDownValue < rocketsCoolDownMax) {
+		rocketsCoolDownValue += deltaTime;
 	}
 
 	if (bAllowMovement && bIsAlive) {
@@ -850,6 +859,13 @@ void AUnholyCharacter::SkillOne() {
 			// knockback
 			SkillKnockBack();
 			break;
+		case ESkillOneType::ES1_rockets : 
+			if (rocketsCoolDownValue >= rocketsCoolDownMax) {
+				SkillRockets();
+			}
+			else {
+				//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "missile on cooldown!");
+			}
 	}
 }
 
@@ -888,4 +904,30 @@ void AUnholyCharacter::SkillKnockBack() {
 	// done in BP, knockBackhitActors filled
 	// #3 knockback enemies on list
 	// done in enemy tick when kickbacked
+}
+
+void AUnholyCharacter::SkillRockets() {
+	if (bRocketUsed) return;
+	else {
+		bRocketUsed = true;					// reset in BP
+		if (homingTarget != NULL) {
+			rocketsCoolDownValue = 0.f;
+		}
+	}
+}
+
+AEnemy* AUnholyCharacter::GetNextHomingTarget() {
+	TArray<AActor*> targetActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy::StaticClass(), targetActors);
+	
+	if (homingTarget == NULL) {
+
+	}
+	
+
+	return 0;
+}
+
+void AUnholyCharacter::ResetHomingTarget() {
+	homingTarget = NULL;
 }

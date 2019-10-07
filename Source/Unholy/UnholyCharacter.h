@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enemy.h"
 #include "GameFramework/Character.h"
 #include "UnholyCharacter.generated.h"
 
@@ -21,12 +22,12 @@ enum class ESkillOneType : uint8
 {
 	ES1_none		UMETA(DisplayName = "none"),
 	ES1_knockback 	UMETA(DisplayName = "Knockback"),
-	ES2_nade		UMETA(DisplayName = "grenade"),
-	ES2_freeze		UMETA(DisplayName = "freeze enemies"),
-	ES2_bang		UMETA(DisplayName = "flash bang"),
-	ES2_wave		UMETA(DisplayName = "wave attack"),
-	ES2_rockets		UMETA(DisplayName = "lock-on rockets"),
-	ES2_mine		UMETA(DisplayName = "mines")
+	ES1_nade		UMETA(DisplayName = "grenade"),
+	ES1_freeze		UMETA(DisplayName = "freeze enemies"),
+	ES1_bang		UMETA(DisplayName = "flash bang"),
+	ES1_wave		UMETA(DisplayName = "wave attack"),
+	ES1_rockets		UMETA(DisplayName = "lock-on rockets"),
+	ES1_mine		UMETA(DisplayName = "mines")
 	
 };
 
@@ -120,11 +121,23 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SkillKnockBack();
 
+	UFUNCTION(BlueprintCallable)
+	void SkillRockets();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skils")
 	UChildActorComponent* knockBackSphere;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skils")
 	bool bKnockBackUsed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skils")
+	bool bRocketUsed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skils")
+	float rocketsCoolDownMax;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skils")
+	float rocketsCoolDownValue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skils")
 	TArray<AActor*> knockBackHitActors;
@@ -167,6 +180,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	ESpecialShotType specialShotType;
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* characterMesh;
 
@@ -207,6 +221,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Movement)
 	float GetSpeed(int axis);
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	AEnemy* GetNextHomingTarget();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void ResetHomingTarget();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	AEnemy* homingTarget;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	bool bShowDebugWindow;
 
@@ -228,7 +251,8 @@ public:
 	// movement vars
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	float inputValueX;
-	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	float maxMovementSpeed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")

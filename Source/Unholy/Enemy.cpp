@@ -76,24 +76,28 @@ AEnemy::AEnemy()
 	healthMaxShooter = 12.f;
 	healthMaxDefender = 20.f;
 	healthMaxMines = 10.f;
+	healthMaxWalker = 15.f;
 
 	aggroInitTimerMaxAllerter = 1.f;
 	aggroInitTimerMaxCharger = .3f;
 	aggroInitTimerMaxShooter = .6f;
 	aggroInitTimerMaxDefender = .2f;
 	aggroInitTimerMaxMines = 3.f;
+	aggroInitTimerMaxWalker = 1.f;
 
 	aggroOverTimerMaxAllerter = 2.f;
 	aggroOverTimerMaxCharger = 1.f;
 	aggroOverTimerMaxShooter = 4.f;
-	aggroOverTimerDefender = 3.f;
-	aggroOverTimerMines = 5.f;
+	aggroOverTimerMaxDefender = 3.f;
+	aggroOverTimerMaxMines = 5.f;
+	aggroOverTimerMaxWalker = 4.f;
 	
 	aggroRangeAllerter = 1000.f;
 	aggroRangeCharger = 800.f;
 	aggroRangeShooter = 800.f;
 	aggroRangeDefender = 1000.f;
 	aggroRangeMines = 1100.f;
+	aggroRangeWalker = 1000.f;
 
 	aggroHeight = 500.f;
 	aggroHeightAllerter = 500.f;
@@ -101,24 +105,28 @@ AEnemy::AEnemy()
 	aggroHeightShooter = 500.f;
 	aggroHeightDefender = 500.f;
 	aggroHeightMines = 500.f;
+	aggroHeightWalker = 50.f;
 
 	minRangeAllerter = 500.f;
 	minRangeCharger = 120.f;
 	minRangeShooter = 500.f;
 	minRangeDefender = 400.f;
 	minRangeMines = 300.f;
+	minRangeWalker = 600.f;
 
 	combatRangeAllerter = 100.f;
 	combatRangeCharger = 0.f;
 	combatRangeShooter = 100.f;
 	combatRangeDefender = 100.f;
 	combatRangeMines = 200.f;
+	combatRangeWalker = 300.f;
 
 	bCanReceiveCriticalHitAllerter = true;
 	bCanReceiveCriticalHitCharger = false;
 	bCanReceiveCriticalHitShooter = true;
 	bCanReceiveCrititcalHitDefender = true;
 	bCanReceiveCriticalHitMines = true;
+	bCanReceiveCriticalHitWalker = true;
 
 	fixedMovementAxis = 0;
 	fixedMovementAxisAllerter = 1;
@@ -126,36 +134,42 @@ AEnemy::AEnemy()
 	fixedMovementAxisShooter = 0;
 	fixedMovementAxisDefender = 0;
 	fixedMovementAxisMines = 0;
+	fixedMovementAxisWalker = 1;
 
 	bCanEvadeAllerter = true;
 	bCanEvadeCharger = false;
 	bCanEvadeShooter = true;
 	bCanEvadeDefender = true;
 	bCanEvadeMines = false;
+	bCanEvadeWalker = false;
 
 	evadeCounterAllerter = 2;
 	evadeCounterCharger = 0;
 	evadeCounterShooter = 1;
 	evadeCounterDefender = 1;
 	evadeCounterMines = 0;
+	evadeCounterWalker = 0;
 
 	evadeTimerMaxAllerter = 3.f;
 	evadeTimerMaxCharger = 3.f;
 	evadeTimerMaxShooter = 3.f;
 	evadeTimerMaxDefender = 3.f;
 	evadeTimerMaxMines = 3.f;
+	evadeTimerMaxWalker = 3.f;
 
 	evadeDistanceAllerter = 150.f;
 	evadeDistanceCharger = 150.f;
 	evadeDistanceShooter = 150.f;
 	evadeDistanceDefender = 150.f;
 	evadeDistanceMines = 150.f;
+	evadeDistanceWalker = 150.f;
 
 	evadeSpeedAllerter = 4.f;
 	evadeSpeedCharger = 4.f;
 	evadeSpeedShooter = 4.f;
 	evadeSpeedDefender = 4.f;
 	evadeSpeedMines = 4.f;
+	evadeSpeedWalker = 1.f;
 
 	defenderShieldRegenTimerMax = 3.f;
 
@@ -172,13 +186,27 @@ AEnemy::AEnemy()
 	speedValueShooter = 500.;
 	speedValueDefender = 500.f;
 	speedValueMines = 300.f;
+	speedValueWalker = 650.f;
+
+	shotFrequencyAllerter = 10.f;
+	shotFrequencyCharger = 10.f;
+	shotFrequencyShooter = 1.f;
+	shotFrequencyDefender = 10.f;
+	shotFrequencyMines = 3.f;
+	shotFrequencyWalker = .3f;
 
 	patrolSpeedMultiplierDefender = .5f;
 	patrolSpeedMultiplierCharger = 1.f;
 	patrolSpeedMultiplierAllerter = .5f;
 	patrolSpeedMultiplierShooter = .75f;
 	patrolSpeedMultiplierMines = .5f;
+	patrolSpeedMultiplierWalker = .75f;
 
+	bIsWalking = false;
+	bDoJump = false;
+	bAimWalkerChasis = false;
+
+	bIsHomingTarget = false;
 }
 
 // Called when the game starts or when spawned
@@ -211,6 +239,7 @@ void AEnemy::BeginPlay() {
 			evadeSpeed = evadeSpeedAllerter;
 			combatRange = combatRangeAllerter;
 			patrolSpeedMultiplier = patrolSpeedMultiplierAllerter;
+			shotFrequencyMax = shotFrequencyAllerter;
 			break;
 
 		case EAttackType::EAT_charge:
@@ -232,6 +261,7 @@ void AEnemy::BeginPlay() {
 			evadeSpeed = evadeSpeedCharger;
 			combatRange = combatRangeCharger;
 			patrolSpeedMultiplier = patrolSpeedMultiplierCharger;
+			shotFrequencyMax = shotFrequencyCharger;
 			break;
 
 		case EAttackType::EAT_range:
@@ -253,12 +283,13 @@ void AEnemy::BeginPlay() {
 			evadeSpeed = evadeSpeedShooter;
 			combatRange = combatRangeShooter;
 			patrolSpeedMultiplier = patrolSpeedMultiplierShooter;
+			shotFrequencyMax = shotFrequencyShooter;
 			break;
 
 		case EAttackType::EAT_defense:
 			healthMax = healthMaxDefender;
 			aggroInitTimerMax = aggroInitTimerMaxDefender;							// time needed to react aggressive
-			aggroOverTimerMax = aggroOverTimerDefender;								// time that enemy stays aggro and tries to follow last position
+			aggroOverTimerMax = aggroOverTimerMaxDefender;							// time that enemy stays aggro and tries to follow last position
 			aggroRange = aggroRangeDefender;
 			aggroHeight = aggroHeightDefender;
 			bIsKickable = false;													// if enemy can be kicked by player
@@ -275,6 +306,7 @@ void AEnemy::BeginPlay() {
 			evadeSpeed = evadeSpeedDefender;
 			combatRange = combatRangeDefender;
 			patrolSpeedMultiplier = patrolSpeedMultiplierDefender;
+			shotFrequencyMax = shotFrequencyDefender;
 			break;
 
 		case EAttackType::EAT_mines:
@@ -296,6 +328,29 @@ void AEnemy::BeginPlay() {
 			evadeSpeed = evadeSpeedMines;
 			combatRange = combatRangeMines;
 			patrolSpeedMultiplier = patrolSpeedMultiplierMines;
+			shotFrequencyMax = shotFrequencyMines;
+			break;
+
+		case EAttackType::EAT_walker:
+			healthMax = healthMaxWalker;
+			aggroInitTimerMax = aggroInitTimerMaxWalker;							// time needed to react aggressive
+			aggroOverTimerMax = aggroOverTimerMaxWalker;							// time that enemy stays aggro and tries to follow last position
+			aggroRange = aggroRangeWalker;
+			aggroHeight = aggroHeightWalker;
+			bIsKickable = true;														// if enemy can be kicked by player
+			speedValue = speedValueWalker;
+			minRange = minRangeWalker;
+			bCanReceiveCriticalHit = bCanReceiveCriticalHitWalker;
+			fixedMovementAxis = fixedMovementAxisWalker;
+			shieldActiveTimerMax = .0f;												// no shields for u!
+			bCanEvade = bCanEvadeWalker;
+			evadeCounter = evadeCounterWalker;
+			evadeTimerMax = evadeTimerMaxWalker;
+			evadeDistance = evadeDistanceWalker;
+			evadeSpeed = evadeSpeedWalker;
+			combatRange = combatRangeWalker;
+			patrolSpeedMultiplier = patrolSpeedMultiplierWalker;
+			shotFrequencyMax = shotFrequencyWalker;
 			break;
 	}
 
@@ -326,7 +381,7 @@ void AEnemy::BeginPlay() {
 
 	bGotGrav = true;
 
-	shotFrequencyMax = 1.5f;
+
 	shotFrequencyValue = shotFrequencyMax;
 
 	bBeenKicked = false;															// if enemy was kicked by player, reset in BP atm
@@ -376,7 +431,17 @@ void AEnemy::Tick(float DeltaTime) {
 	if (healthValue <= 0) {
 		bIsAlive = false;
 	}
+
+	if (Cast<AUnholyCharacter>(thePlayer)->homingTarget == this) {
+		bIsHomingTarget = true;
+	}
+	else {
+		bIsHomingTarget = false;
+	}
 	
+	// set speed value for anim
+	movementSpeed = GetVelocity().Size();
+
 	// check aggro range
 	distanceToPlayer = (GetActorLocation() - thePlayer->GetActorLocation()).Size();
 
@@ -439,7 +504,8 @@ void AEnemy::Tick(float DeltaTime) {
 			// reset aim to fw
 			SetActorRotation(FRotator(0.f, GetActorRotation().Yaw, 0.f));
 		}
-		
+		bAimWalkerChasis = false;
+
 	}
 
 	if (bBeenKicked && bIsAlive) {
@@ -811,6 +877,39 @@ void AEnemy::Aggro(AActor* target) {
 		if (distanceToPlayer > minRange + combatRange) {
 			bIsInCombatRange = false;
 		}
+
+	case EAttackType::EAT_walker:
+		aggroState = EAggroState::EAS_attack;
+		AimWalkerChasis();
+		// check range of player, if out of minRange, move to
+		if (GetHorizontalDistanceTo(thePlayer) > (minRange)) {
+			//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "+");
+			bGoTo = false;
+			fixedMovementAxis = fixedMovementAxisWalker;
+			MovementToLocation(lastKnownPlayerPosition);
+			bWalkerIsShooting = false;
+		}
+		// else if closer than half minRange, get away from (to minRange)
+		else if (GetHorizontalDistanceTo(thePlayer) < (minRange - combatRange)) {
+			//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "-");
+			bIsFleeing = true;
+			bGoTo = true;
+			bWalkerIsShooting = false;
+		}
+		else {
+			bGoTo = false;
+			ShooterAttack(target);		// replace with walker attack!!!!!!!
+		}
+
+		if (distanceToPlayer >= minRange) {
+			bIsFleeing = false;
+		}
+
+		if (bIsFleeing) {
+			movementPattern = fixedMovementAxisWalker;
+			FleeYouFewl();
+		}
+		break;
 	}
 }
 
@@ -869,6 +968,18 @@ void AEnemy::ShooterAttack(AActor* target) {
 	else {
 		shotFrequencyValue += GetWorld()->GetDeltaSeconds();
 	}
+}
+
+void AEnemy::WalkerAttack(AActor* target) {
+	if (!bIsAlive) return;
+
+	bWalkerIsShooting = true;
+	/*if (shotFrequencyValue >= shotFrequencyMax) {
+		bCanShoot = true;
+	}
+	else {
+		shotFrequencyValue += GetWorld()->GetDeltaSeconds();
+	}*/
 }
 
 void AEnemy::ChargerAttack() {
@@ -952,6 +1063,28 @@ void AEnemy::AimChasis() {
 		directionToPlayer = 0;
 	}
 	SetActorRotation(theAimRotation);
+}
+
+void AEnemy::AimWalkerChasis(){
+	if (!bIsAlive) return;
+
+	bAimWalkerChasis = true;
+	AUnholyCharacter* theCharacter = Cast<AUnholyCharacter>(thePlayer);
+	theAimRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), theCharacter->GetCharacterCenter());
+	if (GetActorLocation().Y < thePlayer->GetActorLocation().Y) {
+		// left
+		directionToPlayer = 1;
+		theAimRotation.Yaw = 90.f;
+	}
+	else if (GetActorLocation().Y > thePlayer->GetActorLocation().Y) {
+		// right
+		directionToPlayer = 2;
+		theAimRotation.Yaw = -90.f;
+	}
+	else {
+		directionToPlayer = 0;
+	}
+	walkerChasisRotation = theAimRotation;
 }
 
 void AEnemy::AimWeapon() {
@@ -1074,7 +1207,6 @@ int AEnemy::CheckPathToTarget() {
 		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "down");
 		direction = 1;
 	}
-	// else up
 	else if (GetActorLocation().Z < thePlayer->GetActorLocation().Z) {
 		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "up");
 		direction = 2;
@@ -1135,14 +1267,12 @@ int AEnemy::CheckPathToTarget() {
 					// if lower hits level, move y only
 					if (HitDetails.Actor != thePlayer) {
 						directionToMove = 1;
-						//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, ">> " + HitDetails.Actor->GetName());
 					}
 				}
 				else if (i == 1) {
 					// if upper hits level, move z only
 					if (HitDetails.Actor != thePlayer) {
 						directionToMove = 2;
-						//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, ">> " + HitDetails.Actor->GetName());
 					}
 				}
 
@@ -1153,14 +1283,12 @@ int AEnemy::CheckPathToTarget() {
 					// if upper hits level, move y only
 					if (HitDetails.Actor != thePlayer) {
 						directionToMove = 1;
-						//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, ">> " + HitDetails.Actor->GetName());
 					}
 				}
 				else if (i == 0) {
 					// if lower hits level, move z only
 					if (HitDetails.Actor != thePlayer) {
 						directionToMove = 2;
-						//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, ">> " + HitDetails.Actor->GetName());
 					}
 				}
 			}

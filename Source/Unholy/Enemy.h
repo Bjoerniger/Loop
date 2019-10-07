@@ -21,6 +21,7 @@ enum class EAttackType : uint8
 	EAT_charge	UMETA(DisplayName = "charge attack"),
 	EAT_defense	UMETA(DisplayName = "defend allies"),
 	EAT_mines	UMETA(DisplayName = "mines"),
+	EAT_walker	UMETA(DisplayName = "walker"),
 	EAT_clean	UMETA(DisplayName = "clean")
 };
 
@@ -98,10 +99,16 @@ public:
 	void ShooterAttack(AActor* target);
 
 	UFUNCTION(BlueprintCallable)
+	void WalkerAttack(AActor* target);
+
+	UFUNCTION(BlueprintCallable)
 	void ChargerAttack();
 
 	UFUNCTION(BlueprintCallable)
 	void AimChasis();
+
+	UFUNCTION(BlueprintCallable)
+	void AimWalkerChasis();
 
 	UFUNCTION(BlueprintCallable)
 	void AimWeapon();
@@ -337,165 +344,28 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
 	int fixedMovementAxisMines;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	int fixedMovementAxisCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	int fixedMovementAxisAllerter;
+	// shooter vars
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
 	int fixedMovementAxisShooter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	int fixedMovementAxisDefender;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float speedValueMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float speedValueCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
 	float speedValueShooter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float speedValueAllerter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float speedValueDefender;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float minRangeMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float minRangeAllerter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float minRangeCharger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
 	float minRangeShooter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float minRangeDefender;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float combatRangeMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float combatRangeAllerter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float combatRangeCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
 	float combatRangeShooter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float combatRangeDefender;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	bool bIsInCombatRange;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroInitTimerMaxMines;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
 	float aggroInitTimerMaxShooter;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
-	float aggroInitTimerMaxCharger;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
-	float aggroInitTimerMaxAllerter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroInitTimerMaxDefender;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroOverTimerMines;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
 	float aggroOverTimerMaxShooter;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
-	float aggroOverTimerMaxCharger;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
-	float aggroOverTimerMaxAllerter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroOverTimerDefender;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroOverTimerMaxMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float healthMaxMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float healthMaxCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float healthMaxShooter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float healthMaxAllerter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float healthMaxDefender;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroRangeMines;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
-	float aggroRangeCharger;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
 	float aggroRangeShooter;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
-	float aggroRangeAllerter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroRangeDefender;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	bool bCanReceiveCriticalHitMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	bool bCanEvadeMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	bool bCanEvadeCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	int evadeCounterMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float evadeTimerMaxMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float evadeSpeedMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float evadeDistanceMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	int evadeCounterCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float evadeTimerMaxCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float evadeDistanceCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float evadeSpeedCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	bool bCanEvadeShooter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
 	int evadeCounterShooter;
@@ -510,7 +380,48 @@ public:
 	float evadeSpeedShooter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	bool bCanReceiveCrititcalHitDefender;
+	float aggroHeightShooter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float healthMaxShooter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	bool bCanEvadeShooter;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "patrol")
+	float patrolSpeedMultiplierShooter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	bool bCanReceiveCriticalHitShooter;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float shotFrequencyShooter;
+
+	// allerter vars
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float speedValueAllerter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	int fixedMovementAxisAllerter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	float aggroRangeAllerter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float combatRangeAllerter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	float aggroInitTimerMaxAllerter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	float aggroOverTimerMaxAllerter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float minRangeAllerter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float healthMaxAllerter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
 	bool bCanEvadeAllerter;
@@ -528,6 +439,100 @@ public:
 	float evadeSpeedAllerter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroHeightAllerter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	bool bCanReceiveCriticalHitAllerter;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "patrol")
+	float patrolSpeedMultiplierAllerter;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float shotFrequencyAllerter;
+
+	// charger vars
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	int fixedMovementAxisCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float minRangeCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float combatRangeCharger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	float aggroInitTimerMaxCharger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	float aggroOverTimerMaxCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float speedValueCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float healthMaxCharger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	float aggroRangeCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	bool bCanEvadeCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	int evadeCounterCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float evadeTimerMaxCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float evadeDistanceCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float evadeSpeedCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroHeightCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "patrol")
+	float patrolSpeedMultiplierCharger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	bool bCanReceiveCriticalHitCharger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float shotFrequencyCharger;
+
+	// defender vars
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	int fixedMovementAxisDefender;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float speedValueDefender;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float minRangeDefender;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float combatRangeDefender;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroInitTimerMaxDefender;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroOverTimerMaxDefender;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float healthMaxDefender;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroRangeDefender;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	bool bCanReceiveCrititcalHitDefender;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
 	bool bCanEvadeDefender;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
@@ -543,53 +548,141 @@ public:
 	float evadeSpeedDefender;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroHeight;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroHeightMines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroHeightAllerter;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroHeightCharger;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
-	float aggroHeightShooter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
 	float aggroHeightDefender;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "patrol")
 	float patrolSpeedMultiplierDefender;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "patrol")
-	float patrolSpeedMultiplierCharger;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float shotFrequencyDefender;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "patrol")
-	float patrolSpeedMultiplierAllerter;
+	// mines vars
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "patrol")
-	float patrolSpeedMultiplierShooter;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float speedValueMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float combatRangeMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float minRangeMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroInitTimerMaxMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroOverTimerMines;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroOverTimerMaxMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float healthMaxMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	bool bCanReceiveCriticalHitMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	bool bCanEvadeMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	int evadeCounterMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroHeightMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float evadeTimerMaxMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float evadeSpeedMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float evadeDistanceMines;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroRangeMines;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "patrol")
 	float patrolSpeedMultiplierMines;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float shotFrequencyMines;
+
+	// walker vars
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	int fixedMovementAxisWalker;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float minRangeWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float combatRangeWalker;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	float aggroInitTimerMaxWalker;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	float aggroOverTimerMaxWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float speedValueWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float healthMaxWalker;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	float aggroRangeWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	bool bCanEvadeWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	int evadeCounterWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float evadeTimerMaxWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float evadeDistanceWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float evadeSpeedWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float aggroHeightWalker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "patrol")
+	float patrolSpeedMultiplierWalker;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	bool bCanReceiveCriticalHitWalker;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	bool bAimWalkerChasis;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	FRotator walkerChasisRotation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "class")
+	bool bWalkerIsShooting;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "class")
+	float shotFrequencyWalker;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
+	bool bIsInCombatRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
+	float aggroHeight;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "vars")
 	float aggroOverTimerValue;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "vars")
 	float aggroOverTimerMax;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "vars")
-	bool bCanReceiveCriticalHitCharger;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "vars")
-	bool bCanReceiveCriticalHitAllerter;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "vars")
-	bool bCanReceiveCriticalHitShooter;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "vars")
 	bool bCanReceiveCriticalHit;
@@ -629,7 +722,18 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
 	bool bDoExplode;
+
+	// anims
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
+	bool bIsWalking;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
+	bool bDoJump;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "vars")
+	bool bIsHomingTarget;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "evasion")
 	bool bCanEvade;
