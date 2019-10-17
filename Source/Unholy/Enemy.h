@@ -128,6 +128,9 @@ public:
 	UFUNCTION()
 	int DirectionToLocation(FVector location);
 
+	UFUNCTION(BlueprintCallable)
+	bool LOSCheck(AActor* actor);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector originBeforeEvade;
 

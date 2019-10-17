@@ -17,7 +17,7 @@ enum class EJumpType : uint8
 	EJT_clean	UMETA(DisplayName = "clean")
 };
 
-UENUM(BlueprintType)		// offense skill (q)
+UENUM(BlueprintType)		// offense skill (e)
 enum class ESkillOneType : uint8
 {
 	ES1_none		UMETA(DisplayName = "none"),
@@ -31,11 +31,11 @@ enum class ESkillOneType : uint8
 	
 };
 
-UENUM(BlueprintType)		// defense skill	(e)
+UENUM(BlueprintType)		// defense skill	(q)
 enum class ESkillTwoType : uint8
 {
 	ES2_none		UMETA(DisplayName = "none"),
-	ES2_deflect		UMETA(DisplayName= "deflect damage"),
+	ES2_deflect		UMETA(DisplayName = "deflect damage"),
 	ES2_absorb		UMETA(DisplayName = "absorb bomb"),
 	ES2_invu		UMETA(DisplayName = "invulnarability shield")
 };

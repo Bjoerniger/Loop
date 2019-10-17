@@ -963,7 +963,7 @@ void AEnemy::ShooterAttack(AActor* target) {
 	if (!bIsAlive) return;
 
 	if (shotFrequencyValue >= shotFrequencyMax) {
-		bCanShoot = true;
+		if (bCanSeePlayer) bCanShoot = true;
 	}
 	else {
 		shotFrequencyValue += GetWorld()->GetDeltaSeconds();
@@ -1296,5 +1296,37 @@ int AEnemy::CheckPathToTarget() {
 	}
 
 	return directionToMove;
+}
+
+bool AEnemy::LOSCheck(AActor* actor) {
+
+	FVector Start = GetActorLocation();
+	FVector ForwardVector = GetActorForwardVector();						// GET DIRECTION TO TARGET INSTEAD!!!
+	FVector End = (ForwardVector * distanceToPlayer) + Start;				// GET DISTANCE TO TARGET INSTEAD!!!
+
+	// additional trace parameters
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.bTraceComplex = true;
+	CollisionParams.AddIgnoredComponent(enemyModel_static);
+	CollisionParams.AddIgnoredComponent(enemyModel_weapon);
+	CollisionParams.AddIgnoredComponent(headTriggerVolume);
+	CollisionParams.AddIgnoredComponent(model_destruct);
+	CollisionParams.AddIgnoredActor(this);
+
+	FHitResult HitDetails = FHitResult(ForceInit);							//Re-initialize hit info
+
+	if (GetWorld()->LineTraceSingleByChannel(HitDetails, Start, End, ECC_PhysicsBody, CollisionParams)) {
+
+		FString returnString = HitDetails.Actor->GetName();
+		// debuggeronie
+		if (Cast<AUnholyCharacter>(thePlayer)->bShowDebugWindow) {
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.f, ECC_WorldStatic, .5f);
+		}
+		if (HitDetails.Actor != thePlayer) {
+			return false;
+		}
+		else return true;
+	}
+	else return false;
 }
 

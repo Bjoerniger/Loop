@@ -200,7 +200,7 @@ AUnholyCharacter::AUnholyCharacter() {
 
 	// weapon stats
 	bulletDamage = 3.f;
-	bulletRange = .5f;
+	bulletRange = .75f;
 	bulletSpeed = 2000.f;
 	bulletPenetration = 1;
 	//chargeSpeed == chargeActiveTimerMax;
